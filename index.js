@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const app = express();
 //AUTH0
+
 // config auth0
 app.use(
   auth({
@@ -20,7 +21,8 @@ app.use(
     secret: process.env.AUTH0_SECRET,
   })
 );
-// Auth0 route
+// Auth0 routes
+
 app.get('/', (req, res, next) => {
   res.send(
     req.oidc.isAuthenticated()
@@ -28,12 +30,13 @@ app.get('/', (req, res, next) => {
       : 'Not log in'
   );
 });
-
+//get info google account after login with Auth0
 app.get('/profile', requiresAuth(), (req, res) => {
   res.json(req.oidc.user);
 });
 
 //PASSPORT
+
 //config passport
 app.use(
   session({
@@ -55,7 +58,7 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user);
 });
-
+// Custom Google Strategy
 passport.use(
   new GoogleStrategy(
     {
@@ -73,12 +76,16 @@ passport.use(
     }
   )
 );
+
+//Passport routes
+// Routes login
 app.get(
   '/auth/google',
   passport.authenticate('google', {
     scope: ['https://www.googleapis.com/auth/plus.login'],
   })
 );
+
 app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
@@ -87,21 +94,20 @@ app.get(
     res.redirect('/auth/google/me');
   }
 );
-
+// Redirect here after login
 app.get('/auth/google/me', (req, res, next) => {
   res.json(
     req.session.passport.user
       ? req.session.passport.user
       : 'Not logged in with Passport'
   );
-  // res.redirect('/');
 });
+//Logout
 app.get('/auth/google/logout', (req, res, next) => {
   req.logout();
   res.send('Logged out!!!');
-  // res.redirect('/');
 });
-//
+
 const PORT = 3000;
 
 app.listen(PORT, () => {
