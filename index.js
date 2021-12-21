@@ -1,26 +1,24 @@
-var session = require('express-session');
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const passport = require('passport');
+// USING AUTH0 SAMPLE, port 3000
 
 const { auth, requiresAuth } = require('express-openid-connect');
 const express = require('express');
 require('dotenv').config();
 
 const app = express();
-//AUTH0
 
 // config auth0
+
 app.use(
   auth({
     authRequired: false,
-    // /logout to logout
-    auth0Logout: true,
+    auth0Logout: true, // go to  /logout to logout
     issuerBaseURL: process.env.ISSUER_BASE_URL,
     baseURL: process.env.BASE_URL,
     clientID: process.env.AUTH0_CLIENT_ID,
     secret: process.env.AUTH0_SECRET,
   })
 );
+
 // Auth0 routes
 
 app.get('/', (req, res, next) => {
@@ -30,82 +28,11 @@ app.get('/', (req, res, next) => {
       : 'Not log in'
   );
 });
+
 //get info google account after login with Auth0
+
 app.get('/profile', requiresAuth(), (req, res) => {
   res.json(req.oidc.user);
-});
-
-//PASSPORT
-
-//config passport
-app.use(
-  session({
-    secret: 'secret',
-    saveUninitialized: true,
-    resave: true,
-  })
-);
-
-// passport init
-app.use(passport.initialize());
-
-app.use(passport.session());
-
-passport.serializeUser(function (user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-});
-// Custom Google Strategy
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:3000/auth/google/callback',
-    },
-    function (accessToken, refreshToken, profile, done) {
-      //Insert local account using info of google account
-
-      // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      //   return done(err, user);
-      // });
-      done(null, profile);
-    }
-  )
-);
-
-//Passport routes
-// Routes login
-app.get(
-  '/auth/google',
-  passport.authenticate('google', {
-    scope: ['https://www.googleapis.com/auth/plus.login'],
-  })
-);
-
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  function (req, res) {
-    console.log(req.session.passport.user);
-    res.redirect('/auth/google/me');
-  }
-);
-// Redirect here after login
-app.get('/auth/google/me', (req, res, next) => {
-  res.json(
-    req.session.passport.user
-      ? req.session.passport.user
-      : 'Not logged in with Passport'
-  );
-});
-//Logout
-app.get('/auth/google/logout', (req, res, next) => {
-  req.logout();
-  res.send('Logged out!!!');
 });
 
 const PORT = 3000;

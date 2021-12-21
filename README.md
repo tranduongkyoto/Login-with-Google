@@ -15,8 +15,12 @@ npm install
 ## Run App
 
 ```
-# Run in prod mode
+# Run in prod mode (2 sample)
 npm start
+# Run Auth0 sample
+nodemon index
+# Run Passport sample
+nodemon index2
 ```
 
 - Version: 1.0.0
