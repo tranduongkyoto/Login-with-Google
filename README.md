@@ -1,4 +1,4 @@
-# Login_Using_Google: Auth0 vs Passport
+# Login_Using_Google Example: Auth0 vs Passport
 
 Sample login with goolge using Auth0 and Passport
 
