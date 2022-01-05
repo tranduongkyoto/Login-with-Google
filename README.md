@@ -1,5 +1,7 @@
 # Login_Using_Google Example: Auth0 vs Passport
 
+Tech Stack: Nodejs, Express, Auth0, Passportjs
+
 Sample login with goolge using Auth0 and Passport
 
 ## Usage
